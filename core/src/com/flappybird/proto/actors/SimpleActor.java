@@ -1,5 +1,6 @@
 package com.flappybird.proto.actors;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -7,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class SimpleActor extends Actor {
 
@@ -23,6 +25,15 @@ public class SimpleActor extends Actor {
         boundary = new Rectangle();
         velocityX = 0;
         velocityY = 0;
+
+    }
+
+    protected void init(Stage stage, String imagePath, float x, float y) {
+
+        setTexture(new Texture(Gdx.files.internal(imagePath)));
+        setOrigin(getWidth() / 2, getHeight() / 2);
+        setPosition(x - getOriginX(),y - getOriginY());
+        stage.addActor(this);
 
     }
 
@@ -56,7 +67,7 @@ public class SimpleActor extends Actor {
     public void act(float dt) {
 
         super.act(dt);
-        moveBy(0 * dt, velocityY * dt);
+        moveBy(velocityX * dt, velocityY * dt);
 
     }
 
@@ -72,4 +83,7 @@ public class SimpleActor extends Actor {
 
     }
 
+    public Vector2 getPosition() {
+        return new Vector2(getX(), getY());
+    }
 }

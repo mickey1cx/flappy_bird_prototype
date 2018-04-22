@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -15,77 +16,56 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.flappybird.proto.actors.AnimateActor;
+import com.flappybird.proto.actors.BackGround;
+import com.flappybird.proto.actors.Bird;
 import com.flappybird.proto.actors.SimpleActor;
 
 public class FlappyBird extends Game {
 
     private Stage mainStage;
+    private Stage backStage;
+    private Camera camera;
 
     private float velocity = 100.0f;
     private Animation birdAnim;
     float vBird = 0;
 
-    private AnimateActor bird;
+    private Bird bird;
+
+    private Array<BackGround> ground;
 
     @Override
 	public void create() {
 
 		mainStage = new Stage();
-        initAnimation();
+		//backStage = new Stage();
 		initActors();
+
+		camera = mainStage.getCamera();
+
 
 	}
 
     private void initActors() {
 
-        bird = createAnimateActor(birdAnim, 100, mainStage.getHeight() / 2);
-        bird.setVelocity(new Vector2(10, -10));
 
-    }
-
-    private void initAnimation() {
-
-        TextureRegion[] frames = new TextureRegion[3];
-        for (int i = 0; i < 3; i++) {
-            String fileName = "images/bird0_" + i + ".png";
-            Texture tex = new Texture(Gdx.files.internal(fileName));
-            tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            frames[i] = new TextureRegion(tex);
+        //background
+        for (int i = 0; i < 5; i++) {
+            BackGround _ground = new BackGround(mainStage, "images/bg_day.png",i * 288, 240);
+           // _ground.setBird(bird);
         }
-        Array<TextureRegion> framesArray = new Array<TextureRegion>(frames);
-        birdAnim = new Animation(0.1f, framesArray, Animation.PlayMode.LOOP_PINGPONG);
-
-    }
 
 
-    private SimpleActor createActor(String pathToTexture, float x, float y) {
-        return createActor(pathToTexture, x, y, true);
-    }
+        bird = new Bird(mainStage);
+        bird.setVelocity(new Vector2(75, 0));
 
-    private SimpleActor createActor(String pathToTexture, float x, float y, boolean visible) {
+        //ground
+        for (int i = 0; i < 5; i++) {
+            BackGround _ground = new BackGround(mainStage, "images/land.png",i * 336, 0);
+//            _ground.setBird(bird);
+            _ground.setVelocity(new Vector2(-25, 0));
+        }
 
-        SimpleActor actor = new SimpleActor();
-        actor.setTexture(new Texture(
-                Gdx.files.internal(pathToTexture)
-        ));
-        actor.setOrigin(actor.getWidth() / 2, actor.getHeight() / 2);
-        actor.setPosition(x - actor.getOriginX(),y - actor.getOriginY());
-        actor.setVisible(visible);
-        mainStage.addActor(actor);
-
-        return actor;
-
-    }
-
-    private AnimateActor createAnimateActor(Animation animation, float x, float y) {
-
-        AnimateActor actor = new AnimateActor();
-        actor.setAnimimation(animation);
-        actor.setPosition(x,y);
-        actor.setOrigin(actor.getWidth() / 2, actor.getHeight() / 2);
-        mainStage.addActor(actor);
-
-        return actor;
 
     }
 
@@ -95,9 +75,9 @@ public class FlappyBird extends Game {
         float dt = Gdx.graphics.getDeltaTime();
 
         if (Gdx.input.isTouched()) {
-            vBird =2f;
+            vBird =4f;
         } else {
-            vBird = -1f;
+            vBird = -2f;
         }
 
         bird.addVelocityY(vBird);
@@ -109,7 +89,13 @@ public class FlappyBird extends Game {
 
         mainStage.draw();
 
+        float birdY = bird.getY();
+        float cameraY = (birdY < 200) ? 200 : (birdY > 230) ? 230 : birdY;
+        camera.position.set(bird.getX() + mainStage.getWidth() * 0.4f, cameraY, 0);
+
     }
+
+
 
     @Override
     public void dispose () {
